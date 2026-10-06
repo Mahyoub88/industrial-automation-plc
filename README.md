@@ -143,3 +143,11 @@ The gallery photos come from the project poster. Diagrams 04–09 show the engin
 - [Embedded Systems, IoT & Industrial Automation](https://github.com/Mahyoub88/embedded-iot-automation)
 - [Embedded EEPROM Data Storage & Retrieval System](https://github.com/Mahyoub88/eeprom-data-storage-pic)
 - [All projects](https://mahyoub88.github.io/#work)
+
+## Illustrated project pages
+
+Project-specific diagrams, source media and implementation context:
+
+- [Industrial Automation & PLC-Based Control Systems](https://mahyoub88.github.io/projects/proj-plc-control/)
+
+[Browse all engineering case studies](https://mahyoub88.github.io/projects/)
