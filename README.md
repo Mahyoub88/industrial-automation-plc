@@ -1,8 +1,10 @@
 # Industrial Automation & PLC-Based Control Systems
 
+[Read case study](https://mahyoub88.github.io/projects/proj-plc-control/) · [Project index](docs/PROJECTS.md)
+
 Design and integration of industrial automation and PLC-based control systems for concrete batching and industrial process operations. The work covers PLC programming, HMI interfaces, sensor integration, industrial communication and real-time monitoring, with the aim of accurate, safe and efficient plant operation, remote monitoring and centralised control.
 
-**Author:** Mohammed Mahyoub · [Portfolio](https://mahyoub88.github.io/)
+**Author:** Mohammed Mahyoub · [Portfolio](https://mahyoub88.github.io/projects/)
 
 ![Industrial Automation & PLC-Based Control Systems: project poster](img/00_project_poster.jpg)
 
@@ -46,7 +48,7 @@ Design and integration of industrial automation and PLC-based control systems fo
 
 ## 1. Control system architecture
 
-The system is organised in four levels. Field sensors and actuators are wired to the PLC's I/O modules in the control panel. The PLC runs the sequences, interlocks and timing. HMI panels give operators set-points, recipes and manual or automatic modes, and SCADA supervises the whole process with alarms, trends and historical records. Safety logic lives in the PLC, so the plant stays safe even if the supervisory level or the network fails.
+The system is organised in four levels. Field sensors and actuators are wired to the PLC's I/O modules in the control panel. The PLC runs the sequences, interlocks and timing. HMI panels give operators set-points, recipes and manual or automatic modes, and SCADA supervises the whole process with alarms, trends and historical records. The PLC coordinates process logic and interlocks independently of the supervisory display. These explanatory diagrams do not establish a safety-rated architecture or verified behavior for every network fault.
 
 ![Control system architecture: field, control, operator interface and supervision levels](img/01_control_architecture.svg)
 
@@ -140,14 +142,6 @@ The gallery photos come from the project poster. Diagrams 04–09 show the engin
 
 ## Related
 
-- [Embedded Systems, IoT & Industrial Automation](https://github.com/Mahyoub88/embedded-iot-automation)
+- [Embedded Systems & IoT — PIC Firmware and Peripheral Integration](https://github.com/Mahyoub88/embedded-iot-automation)
 - [Embedded EEPROM Data Storage & Retrieval System](https://github.com/Mahyoub88/eeprom-data-storage-pic)
 - [All projects](https://mahyoub88.github.io/#work)
-
-## Illustrated project pages
-
-Project-specific diagrams, source media and implementation context:
-
-- [Industrial Automation & PLC-Based Control Systems](https://mahyoub88.github.io/projects/proj-plc-control/)
-
-[Browse all engineering case studies](https://mahyoub88.github.io/projects/)
