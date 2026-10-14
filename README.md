@@ -142,6 +142,6 @@ The gallery photos come from the project poster. Diagrams 04–09 show the engin
 
 ## Related
 
-- [Embedded Systems & IoT — PIC Firmware and Peripheral Integration](https://github.com/Mahyoub88/embedded-iot-automation)
-- [Embedded EEPROM Data Storage & Retrieval System](https://github.com/Mahyoub88/eeprom-data-storage-pic)
+- [PIC-Based Equipment Room Monitoring & Control System](https://github.com/Mahyoub88/embedded-iot-automation)
+- [Original PIC EEPROM implementation archive](https://github.com/Mahyoub88/eeprom-data-storage-pic)
 - [All projects](https://mahyoub88.github.io/#work)
