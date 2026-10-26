@@ -6,11 +6,13 @@ This repository documents the implementation below.
 
 [Read case study](https://mahyoub88.github.io/projects/proj-plc-control/)
 
-Integrated PLC-based control for concrete batching and industrial processes, with field I/O, HMI operation, SCADA monitoring and industrial communications.
+Central concrete batching plant with a PC-based SANY operator HMI, PLC control over Modbus RTU, separate serial weighing interfaces and shared SQL Server production records.
 
 Presentation status: Implemented Project.
 
 Preview: Source project media.
+
+[Engineering record](ENGINEERING_RECORD.md) · [Profile description](PROFILE_DESCRIPTION.md) · [Recorded architecture](../img/10_recorded_control_architecture.svg)
 
 ## Source boundaries
 

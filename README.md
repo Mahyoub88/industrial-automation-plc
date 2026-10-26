@@ -1,147 +1,105 @@
 # Industrial Automation & PLC-Based Control Systems
 
-[Read case study](https://mahyoub88.github.io/projects/proj-plc-control/) · [Project index](docs/PROJECTS.md)
+**Central concrete batching plant: PLC control, PC-based HMI, serial weighing and production management.**
 
-Design and integration of industrial automation and PLC-based control systems for concrete batching and industrial process operations. The work covers PLC programming, HMI interfaces, sensor integration, industrial communication and real-time monitoring, with the aim of accurate, safe and efficient plant operation, remote monitoring and centralised control.
+[Illustrated case study](https://mahyoub88.github.io/projects/proj-plc-control/) · [Engineering record](docs/ENGINEERING_RECORD.md) · [Profile description](docs/PROFILE_DESCRIPTION.md) · [Project index](docs/PROJECTS.md)
 
-**Author:** Mohammed Mahyoub · [Portfolio](https://mahyoub88.github.io/projects/)
+This implemented industrial automation project brings together material handling, weighing, dosing, mixing and discharge with operator control and production records. The technical case study now follows the retained SANY software and database records, alongside the plant and control-panel photographs.
 
-![Industrial Automation & PLC-Based Control Systems: project poster](img/00_project_poster.jpg)
+**Author:** Mohammed Mahyoub · [Engineering portfolio](https://mahyoub88.github.io/projects/)
 
-## At a glance
+![Original project poster](img/00_project_poster.jpg)
 
-| Aspect | Detail |
+## System at a glance
+
+| Layer | Recorded implementation |
 |---|---|
-| Main application | Concrete batching plant control |
-| Controllers | PLC (Siemens / Modicon / Delta) with digital and analog I/O modules |
-| Operator interface | HMI panels (Weintek / Siemens / Delta) |
-| Supervision | SCADA / WinCC: monitoring, alarms, trends and historical logs |
-| Communication | RS485 / Modbus, Industrial Ethernet |
-| Field devices | Level, pressure, flow, proximity and weight sensors; motors, valves, cylinders and pumps |
-| Tools | TIA Portal / STEP 7, Unity Pro, WPLSoft / ISPSoft, WinCC, AutoCAD Electrical |
+| Operator workstation | One computer runs the operator application, production-management application and database |
+| Operational HMI | `sany.exe` / `sany9.exe`: batching screen, weighing and dosing settings, automatic/manual operation, mixing and discharge controls |
+| Production management | `cncrt.exe`: recipes, tasks, orders, deliveries, stock, material consumption and production reports |
+| Data storage | Microsoft SQL Server 2000, database `jxc`; the exported schema contains 35 application tables |
+| PC-to-PLC communication | Modbus RTU on COM1; saved configuration: 38400 baud, 8E1, unit address 2 |
+| Weighing communication | Eight serial ports, COM3-COM10, saved at 19200 baud, 8N1 |
+| Controller-family evidence | An archived Controx2000 runtime log names one Siemens S7-200 device and eight Mettler Toledo T600 devices; the exact CPU and physical channel assignments remain unconfirmed |
 
-## Contents
+![Recorded PC, PLC and weighing architecture](img/10_recorded_control_architecture.svg)
 
-1. [Project gallery](#project-gallery)
-2. [Control system architecture](#1-control-system-architecture)
-3. [I/O structure and field wiring](#2-io-structure-and-field-wiring)
-4. [Concrete batching sequence](#3-concrete-batching-sequence)
-5. [Weighing control](#4-weighing-control)
-6. [PLC logic example](#5-plc-logic-example)
-7. [Industrial communication network](#6-industrial-communication-network)
-8. [Alarm management](#7-alarm-management)
-9. [Project workflow](#8-project-workflow)
-10. [Testing and commissioning](#9-testing-and-commissioning)
+The PLC path and weighing paths are separate in the saved PC configuration. This is a PC-based operator interface: the retained evidence does not establish a separate modern HMI panel, an Ethernet supervisory network or a WinCC installation for this plant.
 
-## Project gallery
+## How the applications work together
 
-| | |
+1. **Plan production.** The operator maintains recipes, tasks and deliveries in the production-management software. Material targets and actual quantities are recorded separately.
+2. **Configure the batch.** The operational HMI exposes target quantity, cycle count, automatic/manual selection, tare, coarse-feed and in-flight compensation settings.
+3. **Coordinate dosing and weighing.** The PC exchanges commands and status with the PLC over Modbus RTU and has separate serial connections configured for weighing devices.
+4. **Mix and discharge.** The HMI exposes mixing timers, charge/discharge pause, discharge inhibition and mixer controls. The full PLC state machine is not available in the retained archive.
+5. **Record production.** The shared database supports planned-versus-actual material quantities, batch records, deliveries, alarms, operator logs and reporting.
+
+This sequence explains the available controls and records. It is a functional reconstruction, not a recovered Ladder program or a verified safety sequence.
+
+## Weighing and material control
+
+The application and schema distinguish cement, fly ash, mineral powder, powder additive, two liquid additives, aggregate fractions, sand and water. The weighing workflow includes target values, measured values, tolerance settings, tare and compensation for material still in transit after a feeder closes.
+
+| Record | Engineering purpose |
 |---|---|
-| ![Hardware and system integration](img/gallery/01_hardware_integration.jpg) | ![HMI and operator interface](img/gallery/02_hmi_operator_interface.jpg) |
-| **Hardware & system integration.** PLC, I/O modules and communication hardware, with neat wiring and reliable connections. | **HMI & operator interface.** Panels for monitoring and controlling operations, with real-time data and status indicators. |
-| ![Concrete batching plant](img/gallery/03_concrete_batching_plant.jpg) | ![Process control diagram](img/gallery/04_process_control_diagram.jpg) |
-| **Concrete batching plant.** Plant automation covering material handling, weighing, mixing and discharge control. | **Process control diagram.** Process flow for batching: aggregate → weigh → mix → discharge. |
-| ![Control panel and components](img/gallery/05_control_panel.jpg) | ![PLC I/O and modules](img/gallery/06_plc_io_modules.jpg) |
-| **Control panel & components.** Push buttons, switches and indicators, with manual and automatic modes and safety controls. | **PLC I/O & modules.** PLC with digital and analog I/O modules for data acquisition and output control. |
-| ![Monitoring and alarm system](img/gallery/07_monitoring_alarm_system.jpg) | ![SCADA monitoring interface](img/gallery/08_scada_interface.jpg) |
-| **Monitoring & alarm system.** Alarms for faults and critical conditions, with real-time alerts. | **SCADA / monitoring interface.** Centralised monitoring with live data, trends, reports and historical logs. |
+| `recipe` | Material targets and recipe parameters |
+| `manufacture` | Planned and actual material quantities for a batch |
+| `Task`, `Orders`, `OrderDetail` | Production tasks and order information |
+| `OutMaster` | Delivery records |
+| `exactitude`, `fall` | Weighing tolerance and in-flight compensation settings |
+| `adjcfg` | Mix-ratio adjustments |
+| `Alarm`, `LogInfo` | Alarm and activity records |
 
-## 1. Control system architecture
+The eight logged T600 device entries and eight configured weighing ports are consistent with a multi-channel weighing arrangement. Their one-to-one correspondence, scale assignments and load-cell wiring have not been established.
 
-The system is organised in four levels. Field sensors and actuators are wired to the PLC's I/O modules in the control panel. The PLC runs the sequences, interlocks and timing. HMI panels give operators set-points, recipes and manual or automatic modes, and SCADA supervises the whole process with alarms, trends and historical records. The PLC coordinates process logic and interlocks independently of the supervisory display. These explanatory diagrams do not establish a safety-rated architecture or verified behavior for every network fault.
+## Plant equipment and operator controls
 
-![Control system architecture: field, control, operator interface and supervision levels](img/01_control_architecture.svg)
+The retained interfaces cover aggregate bins and conveying, powder silos and feeding, water and additive dosing, mixer operation and discharge. The documented control-panel photographs include manual/automatic selection, weighing indicators, compressor and filter controls, emergency stop and alarm resets.
 
-## 2. I/O structure and field wiring
+The physical panels carry **EUROMECC** labels, while the retained PC software is **SANY**. Bin and silo counts also differ between the panel photographs and the software mimic. The case study preserves that distinction; it does not assign a single verified plant model or capacity from the software-folder name.
 
-Every field device reaches the PLC through a matching I/O module: buttons, switches and motor feedback on digital inputs; level, moisture and pressure on 4–20 mA analog inputs; motors, valves and cylinders on digital outputs through contactors and relays; drive speed on analog outputs. Field wires land on numbered terminals, and the I/O list ties every tag to its terminal and channel.
+## What the records establish
 
-![I/O structure: field inputs, PLC rack modules, field outputs and wiring practice](img/04_io_and_field_wiring.svg)
+- PC applications and database architecture, including the separate operational and production-management roles.
+- Saved Modbus and serial communication settings.
+- The exported 35-table database schema and the planned/actual weighing record structure.
+- S7-200 and T600 device-family names in the archived Controx runtime log.
+- Operator functions visible in the retained application forms and control-panel photographs.
 
-## 3. Concrete batching sequence
+## Items still requiring plant records
 
-Each batch follows the same automated sequence: the operator selects a recipe, the PLC doses aggregates, cement, water and admixture, the load cells check every material against its target, the mixer runs for the set time, and the discharge gate empties the mixer into the truck. The PLC checks conditions before every step and stops the sequence with an alarm on any fault.
+The exact PLC CPU/order number, plant Ladder source, as-built I/O schedule, terminal list, electrical drawings, drive models, load-cell count, weighing-controller material mapping and original plant Controx project have not been recovered. The Controx installation includes demo projects; its runtime log alone does not establish that Controx was the production front end for the reviewed SANY applications.
 
-![Concrete batching sequence: recipe, dose, weigh, mix, discharge, with the checks between steps](img/02_batching_sequence.svg)
+The [engineering record](docs/ENGINEERING_RECORD.md) separates direct archive findings, interpretations and general engineering examples. Project photographs and legacy application records document the industrial context; they do not independently establish authorship of every OEM component or program.
 
-## 4. Weighing control
+## Visual documentation and learning references
 
-Accuracy comes from feeding each material in two speeds. Coarse feed fills quickly to most of the target; fine feed adds the rest slowly. The material still in the air when the gate closes is compensated by closing early, and the weight must settle inside the tolerance band before the hopper is released.
+The original poster and [cropped source gallery](img/gallery/) remain available. The following older figures explain common batching-plant engineering patterns. Their PLC brands, addresses, Ethernet links, analog signals, alarm priorities and commissioning stages are **illustrative examples**, not the recovered configuration of this plant.
 
-![Weighing control: coarse feed, fine feed, in-flight compensation and tolerance band](img/05_weighing_control.svg)
-
-## 5. PLC logic example
-
-Every motor in the plant uses the same ladder pattern: a start/stop circuit with a seal-in contact, normally-closed stop and overload contacts so a broken wire stops the motor, process interlocks, and a feedback check that raises an alarm if the motor does not actually start.
-
-![Ladder diagram: mixer motor start/stop with interlocks and a feedback alarm](img/06_ladder_logic_mixer.svg)
-
-## 6. Industrial communication network
-
-Supervision runs on Ethernet between the PLC, HMI and SCADA. Field instruments such as weighing indicators, drives and power meters share an RS485 bus where the PLC acts as Modbus master and polls each device by its address.
-
-![Communication network: Ethernet to SCADA and HMI, RS485 Modbus to weighing indicators, VFD and power meter](img/07_communication_network.svg)
-
-## 7. Alarm management
-
-Alarms move through clear states (active, acknowledged, cleared) and carry a priority: high alarms stop the plant, medium alarms hold the batch, low alarms inform. Every alarm is time-stamped and logged, so the history explains each stop.
-
-![Alarm life cycle and priorities](img/08_alarm_management.svg)
-
-## 8. Project workflow
-
-1. Process requirements analysis
-2. System design and architecture
-3. PLC programming and logic development
-4. HMI design and interface configuration
-5. Panel wiring and hardware integration
-6. Testing, commissioning and validation
-7. Monitoring and performance optimisation
-
-![Project workflow: seven stages from requirements to optimisation](img/03_project_workflow.svg)
-
-## 9. Testing and commissioning
-
-Each stage proves one layer before the next is added: the panel itself, every I/O point, each analog loop end to end, the safety interlocks, the full sequence, and finally trial batches and operator handover.
-
-![Testing and commissioning stages from FAT to SAT, with the checks recorded at each one](img/09_testing_commissioning.svg)
-
-## System components
-
-| Component | Role |
+| Figure | Reference topic |
 |---|---|
-| PLC | Central processing unit for the control logic |
-| HMI | Human-machine interface for operation |
-| I/O modules | Digital and analog input/output |
-| Sensors | Level, pressure, flow, weight |
-| Actuators | Motors, valves, cylinders, pumps |
-| Communication | RS485 / Modbus / Industrial Ethernet |
-| Power supply | 24 V DC power supply units |
-| Control panel | Panel assembly and wiring integration |
+| [Control layers](img/01_control_architecture.svg) | Generic field/control/supervision architecture |
+| [Batching sequence](img/02_batching_sequence.svg) | Conceptual dose, weigh, mix and discharge sequence |
+| [Project workflow](img/03_project_workflow.svg) | General engineering lifecycle |
+| [I/O and wiring](img/04_io_and_field_wiring.svg) | Example signal types and terminal practices |
+| [Weighing](img/05_weighing_control.svg) | Coarse/fine feeding, settling and in-flight compensation |
+| [Ladder example](img/06_ladder_logic_mixer.svg) | Teaching example for motor start/stop and feedback |
+| [Network example](img/07_communication_network.svg) | Generic Ethernet/RS485 arrangement |
+| [Alarms](img/08_alarm_management.svg) | Example alarm lifecycle and priorities |
+| [Commissioning](img/09_testing_commissioning.svg) | General inspection and verification stages |
 
-## Applications
+## Technologies documented
 
-Concrete batching plants, material handling systems, industrial process automation, water and wastewater systems, manufacturing and production lines, chemical and cement industries, power and energy plants, factory and infrastructure automation.
+PLC-based batching control · PC-based HMI · SANY operator software · Modbus RTU · Serial weighing interfaces · SQL Server 2000 · ADO/SQLOLEDB · Recipe and production data · Weighing compensation · Fault investigation · Legacy industrial-system documentation
 
-## Design goals
+Siemens S7-200 and Mettler Toledo T600 are identified in archive logs with the qualification above. STEP 7-MicroWIN was present in the archived workstation environment; no plant program was recovered. TIA Portal, WinCC, Modicon, Delta and other modern platforms are not presented here as verified project technologies.
 
-- Better process efficiency and accuracy, with less manual operation and fewer errors
-- Real-time monitoring and control
-- Reliable, stable operation with alarm and safety management
-- A scalable design that is easy to extend
-- Lower maintenance and operating cost
-- Data logging for performance analysis
+## Source handling
 
-## Technologies
+Public documentation contains a technical summary and explanatory figures. Proprietary executables, complete databases, customer/order rows, operator details and account data are not distributed in this repository. No new production measurements, performance improvements, FAT/SAT results or safety certifications are claimed.
 
-PLC (Siemens, Modicon, Delta), HMI (Weintek, Siemens, Delta), SCADA, WinCC, TIA Portal / STEP 7, Unity Pro, WPLSoft / ISPSoft, AutoCAD Electrical, RS485, Modbus RTU, Industrial Ethernet, load cells, ladder logic, motor control, alarm management, control panel design
-
-## Note on the figures
-
-The gallery photos come from the project poster. Diagrams 04–09 show the engineering patterns used in this kind of plant (I/O, weighing, ladder logic, network, alarms, commissioning); tag names, addresses and values in them are typical examples, not an as-built list.
-
-## Related
+## Related work
 
 - [PIC-Based Equipment Room Monitoring & Control System](https://github.com/Mahyoub88/embedded-iot-automation)
 - [Original PIC EEPROM implementation archive](https://github.com/Mahyoub88/eeprom-data-storage-pic)
-- [All projects](https://mahyoub88.github.io/#work)
+- [All engineering case studies](https://mahyoub88.github.io/projects/)
