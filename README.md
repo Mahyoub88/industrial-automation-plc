@@ -26,6 +26,16 @@ This implemented industrial automation project brings together material handling
 
 The PLC path and weighing paths are separate in the saved PC configuration. This is a PC-based operator interface: the retained evidence does not establish a separate modern HMI panel, an Ethernet supervisory network or a WinCC installation for this plant.
 
+## Original software interfaces
+
+The supplied SANY and CNCRT screenshots are now available with a detailed Arabic/English field guide, three source close-ups, a shared-data diagram, report calculations and a glossary. Identifying customer/site/operator fields are masked in the published copies.
+
+![SANY operational HMI, identifying fields masked](img/software/sany-operator-interface.webp)
+
+![CNCRT production and delivery interface, identifying fields masked](img/software/cncrt-production-interface.webp)
+
+[Open the complete illustrated software walkthrough](docs/SOFTWARE_WALKTHROUGH.md) · [View the screenshots and guide on the portfolio](https://mahyoub88.github.io/projects/proj-plc-control/#software-interfaces)
+
 ## How the applications work together
 
 1. **Plan production.** The operator maintains recipes, tasks and deliveries in the production-management software. Material targets and actual quantities are recorded separately.
