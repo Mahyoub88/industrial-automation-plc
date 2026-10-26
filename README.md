@@ -1,115 +1,100 @@
 # Industrial Automation & PLC-Based Control Systems
 
-**Central concrete batching plant: PLC control, PC-based HMI, serial weighing and production management.**
+**Concrete batching control integrating a PC-based operator interface, PLC communication, serial weighing and production management.**
 
-[Illustrated case study](https://mahyoub88.github.io/projects/proj-plc-control/) · [Engineering record](docs/ENGINEERING_RECORD.md) · [Profile description](docs/PROFILE_DESCRIPTION.md) · [Project index](docs/PROJECTS.md)
+[Project case study](https://mahyoub88.github.io/projects/proj-plc-control/) · [Software interface guide](docs/SOFTWARE_WALKTHROUGH.md) · [Engineering record](docs/ENGINEERING_RECORD.md) · [Professional profile summary](docs/PROFILE_DESCRIPTION.md)
 
-This implemented industrial automation project brings together material handling, weighing, dosing, mixing and discharge with operator control and production records. The technical case study now follows the retained SANY software and database records, alongside the plant and control-panel photographs.
+## Project Overview
 
-**Author:** Mohammed Mahyoub · [Engineering portfolio](https://mahyoub88.github.io/projects/)
+This implemented industrial automation project covers the control and information layers of a central concrete batching plant: material handling, recipe-based dosing, weighing, mixing, discharge and production reporting. Its architecture combines the SANY operational HMI, a separate production-management application and a shared SQL Server database on one operator workstation.
 
-![Original project poster](img/00_project_poster.jpg)
+The case study explains how operator commands, PLC status, weighing interfaces and production records fit together. Original software screenshots support the interface walkthrough, while technical diagrams describe the control and data architecture.
 
-## System at a glance
+**Mohammed Mahyoub** · [Engineering portfolio](https://mahyoub88.github.io/projects/)
 
-| Layer | Recorded implementation |
+## System Architecture
+
+| Component | Function |
 |---|---|
-| Operator workstation | One computer runs the operator application, production-management application and database |
-| Operational HMI | `sany.exe` / `sany9.exe`: batching screen, weighing and dosing settings, automatic/manual operation, mixing and discharge controls |
-| Production management | `cncrt.exe`: recipes, tasks, orders, deliveries, stock, material consumption and production reports |
-| Data storage | Microsoft SQL Server 2000, database `jxc`; the exported schema contains 35 application tables |
-| PC-to-PLC communication | Modbus RTU on COM1; saved configuration: 38400 baud, 8E1, unit address 2 |
-| Weighing communication | Eight serial ports, COM3-COM10, saved at 19200 baud, 8N1 |
-| Controller-family evidence | An archived Controx2000 runtime log names one Siemens S7-200 device and eight Mettler Toledo T600 devices; the exact CPU and physical channel assignments remain unconfirmed |
+| SANY operational HMI | Process visualization, batch parameters, automatic/manual operation, weighing adjustments, mixing and discharge commands |
+| CNCRT production management | Recipes, tasks, orders, deliveries, material consumption, inventory and production reports |
+| PLC interface | Process command and status exchange over Modbus RTU |
+| Serial weighing interfaces | Dedicated workstation connections for weighing-device communication |
+| SQL Server 2000 — jxc | Shared recipe, batch, delivery, configuration, alarm and activity records |
 
-![Recorded PC, PLC and weighing architecture](img/10_recorded_control_architecture.svg)
+![PC-based batching control architecture](img/10_recorded_control_architecture.svg)
 
-The PLC path and weighing paths are separate in the saved PC configuration. This is a PC-based operator interface: the retained evidence does not establish a separate modern HMI panel, an Ethernet supervisory network or a WinCC installation for this plant.
+### Communication Configuration
 
-## Original software interfaces
-
-The supplied SANY and CNCRT screenshots are now available with a detailed Arabic/English field guide, three source close-ups, a shared-data diagram, report calculations and a glossary. Identifying customer/site/operator fields are masked in the published copies.
-
-![SANY operational HMI, identifying fields masked](img/software/sany-operator-interface.webp)
-
-![CNCRT production and delivery interface, identifying fields masked](img/software/cncrt-production-interface.webp)
-
-[Open the complete illustrated software walkthrough](docs/SOFTWARE_WALKTHROUGH.md) · [View the screenshots and guide on the portfolio](https://mahyoub88.github.io/projects/proj-plc-control/#software-interfaces)
-
-## How the applications work together
-
-1. **Plan production.** The operator maintains recipes, tasks and deliveries in the production-management software. Material targets and actual quantities are recorded separately.
-2. **Configure the batch.** The operational HMI exposes target quantity, cycle count, automatic/manual selection, tare, coarse-feed and in-flight compensation settings.
-3. **Coordinate dosing and weighing.** The PC exchanges commands and status with the PLC over Modbus RTU and has separate serial connections configured for weighing devices.
-4. **Mix and discharge.** The HMI exposes mixing timers, charge/discharge pause, discharge inhibition and mixer controls. The full PLC state machine is not available in the retained archive.
-5. **Record production.** The shared database supports planned-versus-actual material quantities, batch records, deliveries, alarms, operator logs and reporting.
-
-This sequence explains the available controls and records. It is a functional reconstruction, not a recovered Ladder program or a verified safety sequence.
-
-## Weighing and material control
-
-The application and schema distinguish cement, fly ash, mineral powder, powder additive, two liquid additives, aggregate fractions, sand and water. The weighing workflow includes target values, measured values, tolerance settings, tare and compensation for material still in transit after a feeder closes.
-
-| Record | Engineering purpose |
+| Interface | Configuration recorded in the application |
 |---|---|
-| `recipe` | Material targets and recipe parameters |
-| `manufacture` | Planned and actual material quantities for a batch |
-| `Task`, `Orders`, `OrderDetail` | Production tasks and order information |
-| `OutMaster` | Delivery records |
-| `exactitude`, `fall` | Weighing tolerance and in-flight compensation settings |
-| `adjcfg` | Mix-ratio adjustments |
-| `Alarm`, `LogInfo` | Alarm and activity records |
+| PC to PLC | COM1; Modbus RTU; 38400 baud; 8 data bits; even parity; 1 stop bit; unit address 2 |
+| Weighing channels | Eight serial ports, COM3–COM10; 19200 baud; 8 data bits; no parity; 1 stop bit |
+| Application data access | ADO/SQLOLEDB connection to the shared jxc database |
 
-The eight logged T600 device entries and eight configured weighing ports are consistent with a multi-channel weighing arrangement. Their one-to-one correspondence, scale assignments and load-cell wiring have not been established.
+An archived runtime log identifies Siemens S7-200 and Mettler Toledo T600 device families. Exact CPU identification and the association between logged weighing devices and physical serial channels remain subject to the original hardware configuration.
 
-## Plant equipment and operator controls
+## Operator Interface — SANY
 
-The retained interfaces cover aggregate bins and conveying, powder silos and feeding, water and additive dosing, mixer operation and discharge. The documented control-panel photographs include manual/automatic selection, weighing indicators, compressor and filter controls, emergency stop and alarm resets.
+The operational screen brings together recipe selection, production quantities, material readouts, process visualization and operator controls. It provides automatic/manual selection, charge/discharge pause, run/stop commands, mixing parameters and discharge inhibition.
 
-The physical panels carry **EUROMECC** labels, while the retained PC software is **SANY**. Bin and silo counts also differ between the panel photographs and the software mimic. The case study preserves that distinction; it does not assign a single verified plant model or capacity from the software-folder name.
+![SANY process monitoring and operator interface](img/software/sany-operator-interface.webp)
 
-## What the records establish
+The [software interface guide](docs/SOFTWARE_WALKTHROUGH.md) explains each visible control group and includes close-ups of batch settings and process commands.
 
-- PC applications and database architecture, including the separate operational and production-management roles.
-- Saved Modbus and serial communication settings.
-- The exported 35-table database schema and the planned/actual weighing record structure.
-- S7-200 and T600 device-family names in the archived Controx runtime log.
-- Operator functions visible in the retained application forms and control-panel photographs.
+## Production Management — CNCRT
 
-## Items still requiring plant records
+The management application organizes the production context around the batch: recipes, orders, customers, trucks, deliveries, material consumption and reports. Its delivery view presents individual batch quantities alongside cumulative delivery totals, with document preview and printing functions.
 
-The exact PLC CPU/order number, plant Ladder source, as-built I/O schedule, terminal list, electrical drawings, drive models, load-cell count, weighing-controller material mapping and original plant Controx project have not been recovered. The Controx installation includes demo projects; its runtime log alone does not establish that Controx was the production front end for the reviewed SANY applications.
+![CNCRT production and delivery management interface](img/software/cncrt-production-interface.webp)
 
-The [engineering record](docs/ENGINEERING_RECORD.md) separates direct archive findings, interpretations and general engineering examples. Project photographs and legacy application records document the industrial context; they do not independently establish authorship of every OEM component or program.
+### Planned Versus Actual Quantities
 
-## Visual documentation and learning references
+The report uses Scheme for the target quantity, Fact for the recorded actual quantity and Error for percentage deviation:
 
-The original poster and [cropped source gallery](img/gallery/) remain available. The following older figures explain common batching-plant engineering patterns. Their PLC brands, addresses, Ethernet links, analog signals, alarm priorities and commissioning stages are **illustrative examples**, not the recovered configuration of this plant.
+**Deviation (%) = (Actual − Target) / Target × 100**, for a nonzero target.
 
-| Figure | Reference topic |
+In the illustrated record, a target of 400.0 and an actual quantity of 378.0 produce −5.50%; a target of 1000.0 and an actual quantity of 1026.0 produce +2.60%. These examples explain the historical report rather than establish new calibration results.
+
+## Shared Production Database
+
+The exported jxc schema contains 35 application tables. Principal groups include recipes and batches, production tasks and orders, deliveries, weighing settings, inventory, station information, alarms and activity history.
+
+![Shared SANY and CNCRT production-data architecture](img/software/jxc-shared-data.svg)
+
+| Tables | Application purpose |
 |---|---|
-| [Control layers](img/01_control_architecture.svg) | Generic field/control/supervision architecture |
-| [Batching sequence](img/02_batching_sequence.svg) | Conceptual dose, weigh, mix and discharge sequence |
-| [Project workflow](img/03_project_workflow.svg) | General engineering lifecycle |
-| [I/O and wiring](img/04_io_and_field_wiring.svg) | Example signal types and terminal practices |
-| [Weighing](img/05_weighing_control.svg) | Coarse/fine feeding, settling and in-flight compensation |
-| [Ladder example](img/06_ladder_logic_mixer.svg) | Teaching example for motor start/stop and feedback |
-| [Network example](img/07_communication_network.svg) | Generic Ethernet/RS485 arrangement |
-| [Alarms](img/08_alarm_management.svg) | Example alarm lifecycle and priorities |
-| [Commissioning](img/09_testing_commissioning.svg) | General inspection and verification stages |
+| recipe; manufacture | Recipe targets and planned-versus-actual batch quantities |
+| Task; Orders; OrderDetail; OutMaster | Production planning, orders and deliveries |
+| exactitude; fall; adjcfg | Weighing tolerances, in-flight compensation and mix adjustments |
+| products; stock; Station | Material, inventory and station information |
+| Alarm; LogInfo | Alarm and activity records |
 
-## Technologies documented
+## Operating Workflow
 
-PLC-based batching control · PC-based HMI · SANY operator software · Modbus RTU · Serial weighing interfaces · SQL Server 2000 · ADO/SQLOLEDB · Recipe and production data · Weighing compensation · Fault investigation · Legacy industrial-system documentation
+1. Define the recipe, production task and delivery requirements.
+2. Select the task and configure batch parameters in the operational HMI.
+3. Exchange process commands and status with the PLC while acquiring weighing information through the configured serial interfaces.
+4. Coordinate charging, mixing and discharge through the available operator functions and process conditions.
+5. Store batch quantities and production context, then review individual batches and cumulative deliveries in the management application.
 
-Siemens S7-200 and Mettler Toledo T600 are identified in archive logs with the qualification above. STEP 7-MicroWIN was present in the archived workstation environment; no plant program was recovered. TIA Portal, WinCC, Modicon, Delta and other modern platforms are not presented here as verified project technologies.
+## Engineering Documentation
 
-## Source handling
+- [Software interface guide](docs/SOFTWARE_WALKTHROUGH.md): original screenshots, detailed field descriptions, reporting examples, application-function inventory and technical glossary.
+- [Engineering record](docs/ENGINEERING_RECORD.md): communication settings, schema interpretation, hardware identification and documentation limits.
+- [Project index](docs/PROJECTS.md): canonical project links and publication scope.
+- [Professional profile summary](docs/PROFILE_DESCRIPTION.md): concise project description for professional profiles.
 
-Public documentation contains a technical summary and explanatory figures. Proprietary executables, complete databases, customer/order rows, operator details and account data are not distributed in this repository. No new production measurements, performance improvements, FAT/SAT results or safety certifications are claimed.
+The original I/O, Ladder, weighing, network, alarm and commissioning figures remain available in the image archive as general engineering references. Their example brands, addresses and wiring are not presented as the plant's as-built configuration.
 
-## Related work
+## Documentation Scope
+
+This case study draws on application records, original screenshots, the database export and plant/control-panel photographs. The physical panels carry Euromecc branding, while the PC applications are SANY; differences in equipment counts and model references are retained in the engineering record. A single installed model or rated capacity is therefore not asserted.
+
+The original plant Ladder program, exact CPU/order number, as-built I/O schedule, electrical drawings, scale assignments and complete commissioning records are not available in the reviewed archive. Published screenshots have identifying fields masked. Proprietary executables, complete databases, account details and private business records are not distributed.
+
+## Related Engineering Projects
 
 - [PIC-Based Equipment Room Monitoring & Control System](https://github.com/Mahyoub88/embedded-iot-automation)
-- [Original PIC EEPROM implementation archive](https://github.com/Mahyoub88/eeprom-data-storage-pic)
-- [All engineering case studies](https://mahyoub88.github.io/projects/)
+- [PIC EEPROM Implementation Archive](https://github.com/Mahyoub88/eeprom-data-storage-pic)
+- [Complete Engineering Portfolio](https://mahyoub88.github.io/projects/)

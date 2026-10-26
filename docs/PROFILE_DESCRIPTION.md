@@ -1,27 +1,27 @@
-# Profile description
+# Professional Profile Summary
 
-Use the same project title across the portfolio, GitHub and professional profiles. Keep the existing case-study and repository URLs so saved links continue to work.
-
-## Title
+## Project Title
 
 Industrial Automation & PLC-Based Control Systems
 
-## Description
+## Project Description
 
-Central concrete batching plant combining PLC control, a PC-based SANY operator interface, serial weighing interfaces and SQL Server production management.
+Industrial automation project covering the control and production-information architecture of a central concrete batching plant. The system combines a PC-based SANY operator interface, PLC communication over Modbus RTU, dedicated serial weighing interfaces and shared SQL Server production records.
 
-The operational HMI handles batching settings, automatic/manual operation, weighing adjustments, mixing and discharge controls. A separate production-management application handles recipes, tasks, orders, deliveries, material consumption and reports; both applications share the jxc database on the same computer.
+The operational HMI provides process visualization, recipe/task selection, batch parameters, automatic/manual operation, weighing adjustments, mixing controls and discharge functions. A separate production-management application handles recipes, orders, deliveries, material consumption, inventory and reporting.
 
-Technical documentation covers Modbus RTU communication between the PC and PLC, separate serial weighing channels, planned-versus-actual material quantities, tolerance and in-flight compensation settings, alarms and production records. Archived runtime logs identify Siemens S7-200 and Mettler Toledo T600 device families; the exact PLC CPU and as-built I/O mapping remain unconfirmed.
+The illustrated case study includes original application screenshots, a detailed interface walkthrough, planned-versus-actual weighing examples and diagrams of the workstation, PLC, weighing and database architecture. Its engineering record documents the communication configuration and distinguishes hardware-family log entries from unresolved as-built details.
 
-The illustrated case study explains the control and data architecture using retained application records and plant photographs, with generic engineering examples identified separately.
+## Core Topics
 
-View repository:
-https://github.com/Mahyoub88/industrial-automation-plc
+Concrete batching · PLC communication · PC-based HMI · Modbus RTU · Serial weighing · Recipe management · Production reporting · SQL Server · Industrial-system integration
 
-Illustrated case study:
-https://mahyoub88.github.io/projects/proj-plc-control/
+## Project Links
 
-## Short version
+- [Illustrated case study](https://mahyoub88.github.io/projects/proj-plc-control/)
+- [Technical repository](https://github.com/Mahyoub88/industrial-automation-plc)
+- [Software interface guide](https://github.com/Mahyoub88/industrial-automation-plc/blob/main/docs/SOFTWARE_WALKTHROUGH.md)
 
-Central concrete batching plant: PC-based SANY HMI, PLC control over Modbus RTU, serial weighing interfaces and shared SQL Server recipe, batch and delivery records.
+## Short Description
+
+Concrete batching control integrating a PC-based SANY HMI, Modbus RTU PLC communication, serial weighing and SQL Server recipe, batch and delivery management.

@@ -1,66 +1,67 @@
-# Concrete batching plant: engineering record
+# Engineering Record — Concrete Batching Control
 
-This record supports the [portfolio case study](https://mahyoub88.github.io/projects/proj-plc-control/) and the [repository overview](../README.md). It summarizes retained software, database and photograph findings. It is not an as-built drawing package or a replacement for the original PLC program.
+This record defines the technical basis of the [project case study](https://mahyoub88.github.io/projects/proj-plc-control/) and [software interface guide](SOFTWARE_WALKTHROUGH.md). It distinguishes application configuration, database structure, hardware-family identification and the information required to complete an as-built engineering package.
 
-## Sources reviewed in the project analysis
+## 1. Control and Information Architecture
 
-| Source | What it contributes |
+One operator workstation hosts the SANY operational HMI, CNCRT production-management application and SQL Server 2000 database jxc. Both applications access production data through ADO/SQLOLEDB. The operational application also provides a Modbus RTU path to the PLC and separate serial weighing interfaces.
+
+| Interface | Recorded configuration | Engineering interpretation |
+|---|---|---|
+| PLC communication | COM1, 38400 baud, 8E1, Modbus unit 2 | Command/status exchange between workstation and PLC |
+| Status and command data | Coils, discrete inputs and holding registers; register writes for run/stop | Application communication pattern; field-address assignments require the plant program |
+| Weighing communication | COM3–COM10, 19200 baud, 8N1 | Eight configured workstation serial interfaces |
+| Database access | ADO/SQLOLEDB, SQL Server 2000, jxc | Persistent application and production records |
+
+The data-storage path and field-control paths serve different purposes. The database holds production context and history; serial interfaces carry PLC and weighing communication.
+
+## 2. Application Responsibilities
+
+SANY presents the process mimic, task/recipe selection, production quantities, weighing adjustments, automatic/manual selection, mixing parameters and charge/discharge controls. CNCRT manages recipes, tasks, orders, deliveries, stock, consumption, reporting and administration.
+
+The detailed interface guide identifies the visible controls in the supplied screenshots and separately lists functions documented in the application-form analysis. Screenshots describe historical interface states; they do not constitute a live plant test.
+
+## 3. Database Structure
+
+The exported jxc.sql DDL is the schema reference. It defines 35 application tables, 34 primary keys and 29 defaults. It contains no foreign-key, secondary-index, view, stored-procedure or trigger definitions. These observations apply to that export rather than every possible database copy.
+
+Principal functional groups are recipe/batch records, production tasks and orders, deliveries, weighing settings, mix adjustments, inventory, station information, alarms and activity history. The published database diagram groups tables by purpose and does not assert SQL foreign-key relationships.
+
+Different jxc files in the archive have equal sizes but different contents. They represent different database states and must be distinguished by provenance and file content rather than size alone.
+
+## 4. Hardware and System Identification
+
+| Source observation | Supported identification | Information still required |
+|---|---|---|
+| Controx2000 CoreTask.log names an S7-200 device | Siemens S7-200 family in the archived installation | Exact CPU, order number, firmware and installed hardware configuration |
+| The same log names eight T600 devices | Mettler Toledo T600 device-family entries | Physical device identity, serial-port correspondence and material assignments |
+| STEP 7-MicroWIN installation and recent-file history | S7-200 engineering environment | Original plant project and program contents |
+| Euromecc names on physical-panel photographs; SANY names in PC software | Distinct physical-panel and software branding | OEM/installer boundaries and final system configuration |
+| Equipment counts differ between panels and software mimic | The sources cannot be treated as one verified equipment schedule | As-built equipment inventory and modification history |
+
+The archive includes HZS60-family reference material and an HZS120 station entry. These references do not establish the installed plant model, capacity, motor ratings or equipment counts. A Controx2000 runtime entry or website footer also does not independently identify the production front end for the SANY applications.
+
+## 5. Source Register
+
+| Source | Technical contribution |
 |---|---|
-| SANY application archive, including sany.exe, sany9.exe, cncrt.exe and configuration files | Operator forms, application roles, saved communication settings and database access |
-| SQL Server package and copied jxc database files | Legacy engine context and production-record structure; different database copies represent different states |
-| Exported jxc.sql DDL | Authoritative exported schema: 35 application tables, 34 primary keys and 29 defaults |
-| Controx2000 CoreTask.log | Runtime entries naming one Siemens S7-200 device and eight Mettler Toledo T600 devices |
-| Archived STEP 7-MicroWIN installation and recent-file history | Programming-environment context; only templates/samples and historical project names were recovered |
-| Plant and control-panel photographs | Physical plant context, Euromecc branding, weighing indicators and operator controls |
+| SANY application files and configuration | Application roles, forms and communication settings |
+| CNCRT interface and application-form analysis | Production administration, delivery comparison and reporting functions |
+| jxc.sql schema export | Table definitions, keys and defaults |
+| Copied SQL Server/jxc files | Legacy engine context and distinguishable production-data states |
+| Controx2000 runtime log | Historical device-family entries |
+| STEP 7-MicroWIN environment | Programming-tool context and historical project references |
+| Plant and control-panel photographs | Physical equipment context, branding and operator controls |
 
-The public record summarizes the earlier archive analysis; raw binaries, database rows and private analysis workspaces are not linked here.
+## 6. Requirements for a Complete As-Built Package
 
-## Recorded application architecture
+- Original PLC project or a controlled upload with CPU and hardware identification.
+- Electrical drawings, terminal schedules, I/O list and field-device tags.
+- Scale assignments, weighing-controller parameters, load-cell wiring and calibration records.
+- Motor/drive nameplates and control interfaces.
+- Original plant Controx project where applicable.
+- FAT/SAT, service and handover records documenting tested behavior and individual/team responsibilities.
 
-One computer hosts the SANY operational HMI, the production-management application and SQL Server. The programs share the jxc database through ADO/SQLOLEDB. sany.exe has saved configurations for Modbus RTU communication with the PLC and separate serial weighing interfaces.
+## Publication Scope
 
-| Interface | Saved parameters | Boundary |
-|---|---|---|
-| PC to PLC | COM1, 38400 baud, 8 data bits, even parity, 1 stop bit, Modbus unit 2 | Software configuration; not proof of present physical wiring |
-| PLC status polling | Coils, discrete inputs and holding registers; run/stop commands use register writes | Polling pattern does not recover the plant Ladder code or assign field addresses |
-| Weighing interfaces | Eight ports, COM3-COM10, 19200 baud, 8N1 | Material assignments and physical cable topology are unknown |
-| Database access | ADO/SQLOLEDB, jxc on SQL Server 2000 | Business/production storage; not the real-time field-control path |
-
-## Operational functions
-
-The application forms expose recipe/task selection, target quantity and cycle count, automatic/manual modes, weight setup, coarse-feed and fall compensation, tare, mixing timers, pause charge/discharge, discharge inhibition and alarm display. The production application exposes orders, deliveries, consumption, stock, daily/monthly reports and activity records.
-
-These controls show available operator functions. They do not verify every sequence transition, interlock, communication-loss response or emergency-stop circuit. Those require the PLC source and plant drawings.
-
-## Data model
-
-The exported DDL, rather than an earlier partial binary-catalog extraction, is the schema authority. Its 35 tables include recipe, batch, task/order, delivery, station, stock, weighing-setting, adjustment, alarm and activity records.
-
-The export contains no foreign-key definitions, secondary indexes, views, stored procedures or triggers. That describes this export; it does not prove that every database copy was identical. Application code handles relationships absent from the exported database constraints.
-
-Different retained jxc files have the same size but different contents. They must not be treated as interchangeable. Names, customer records, operator/account details and individual delivery rows are deliberately excluded from this public summary.
-
-## Hardware interpretation
-
-| Observation | Supported conclusion | Still unresolved |
-|---|---|---|
-| Runtime log names an S7-200 series device | S7-200 family is documented in the archived installation | Exact CPU, order number, firmware and physical rack |
-| Runtime log starts eight T600 device entries | Eight logical T600 devices are documented | Whether each maps to one saved serial port, and which material each weighs |
-| STEP 7-MicroWIN is installed | S7-200 engineering tools were available in that workstation environment | Authorship and contents of the plant program |
-| Euromecc names on photographed panels; SANY names in software | Physical-panel branding and PC-software branding differ | OEM/installer scope, final plant model and complete control-system provenance |
-| Panel and mimic bin/silo counts differ | The pictures cannot be combined into a single verified equipment schedule | Actual installed counts and any later modifications |
-
-The HZS60-family brochure is a reference found in the archive. A station record also contains HZS120 text. Neither establishes a verified installed model, throughput, motor rating or equipment count for the photographed plant.
-
-## Evidence still needed for an as-built package
-
-- PLC upload or original project, with CPU identification and hardware configuration.
-- Electrical drawings, terminal schedules, I/O list and documented field-device tags.
-- Weighing-controller configuration, scale assignments, load-cell wiring and calibration records.
-- Drive and motor nameplates and control interfaces.
-- Original plant Controx project, if that application was used in production.
-- FAT/SAT or service records identifying tested behavior and personal/team responsibilities.
-
-## Interpretation of the portfolio
-
-The project remains presented as implemented industrial work. Technical documentation and later archive analysis are described separately from recovered original code. Generic Ladder, I/O, Ethernet and commissioning figures are educational references and must not be used as evidence that those exact implementations were installed.
+The portfolio presents implemented industrial work and clearly identifies subsequent technical analysis and general engineering illustrations. It does not attribute every OEM program to the portfolio author or claim recovered Ladder code, verified safety logic, new calibration measurements or measured performance improvements. Public material excludes complete databases, proprietary executables, customer identities and account data.
